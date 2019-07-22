@@ -1,0 +1,23 @@
+/root/glogBrpc/glogSecExample/glogfile/log* {
+    monthly     #一个月rotate一次
+    missingok   #意思是如果找不到上述定义的log*日志，也不会报错，直接跳过
+    nocreate     #不建立新的日志文件，因为glog的日志文件是以当前日期命名，文件名字一直会变，一直会增长
+    nodateext   #备份的日志不用当前时间作后缀，glog的日志本身带有时间戳
+    
+    #每个glog日志文件备份1份
+    rotate 1
+    
+    #rotate之后，日志备份位置
+    olddir /root/glogBrpc/glogSecExample/oldGlogfile
+
+    #每一次rotate之后，删除备份文件夹下超过30天的旧日志
+    postrotate
+    find /root/glogBrpc/glogSecExample/oldGlogfile/ -mtime +1 -name "log*" -exec rm -rf {} \;
+    endscript
+
+}
+
+#由于glog的日志文件是以当前日期命名，文件名字一直会变，
+#虽然每一次rotate之后当前写日志的文件夹
+#日志文件会被清空，但是在备份的位置，旧的日志会越来越多，
+#所以另起服务处理备份文件夹下的日志文件。

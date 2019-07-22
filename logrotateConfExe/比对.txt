@@ -1,0 +1,132 @@
+/root/glogBrpc/glogSecExample/glogfile/log* {
+    nocompress
+
+    daily
+
+    copytruncate
+
+    create
+
+    ifempty
+
+    olddir /root/glogBrpc/glogSecExample/oldGlogfile
+
+    rotate 0
+
+}
+
+/var/log/boot.log
+{
+    missingok
+    daily
+    copytruncate
+    rotate 7
+    notifempty
+}
+/var/log/chrony/*.log {
+    missingok
+    nocreate
+    sharedscripts
+    postrotate
+        /usr/bin/chronyc cyclelogs > /dev/null 2>&1 || true
+    endscript
+}
+/var/log/cups/*_log {
+    missingok
+    notifempty
+    sharedscripts
+}
+/var/log/iscsiuio.log {
+    weekly
+    missingok
+    notifempty
+    rotate 4
+    sharedscripts
+    postrotate
+    pkill -USR1 iscsiuio 2> /dev/null || true
+    endscript
+}
+/var/log/libvirt/libvirtd.log {
+        weekly
+        missingok
+        rotate 4
+        compress
+        delaycompress
+        copytruncate
+        minsize 100k
+}
+/var/log/libvirt/qemu/*.log {
+        weekly
+        missingok
+        rotate 4
+        compress
+        delaycompress
+        copytruncate
+}
+/var/log/numad.log {
+    compress
+    copytruncate
+    maxage 60
+    missingok
+    rotate 5
+    size 1M
+}
+# Logrotate file for ppp RPM
+ 
+/var/log/ppp/connect-errors {
+	missingok
+	compress
+	notifempty
+	daily
+	rotate 5
+	create 0600 root root
+}
+# Logrotate file for psacct RPM
+
+/var/account/pacct {
+    compress
+    delaycompress
+    notifempty
+    daily
+    rotate 31
+    create 0600 root root
+    postrotate
+       if /usr/bin/systemctl --quiet is-active psacct.service ; then
+           /usr/sbin/accton /var/account/pacct | /usr/bin/grep -v "Turning on process accounting, file set to '/var/account/pacct'." | /usr/bin/cat
+       fi
+    endscript
+}
+/var/log/samba/* {
+    notifempty
+    olddir /var/log/samba/old
+    missingok
+    sharedscripts
+    copytruncate
+}
+/var/log/cron
+/var/log/maillog
+/var/log/messages
+/var/log/secure
+/var/log/spooler
+{
+    missingok
+    sharedscripts
+    postrotate
+	/bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+    endscript
+}
+/var/log/wpa_supplicant.log {
+    missingok
+    notifempty
+    size 30k
+    create 0600 root root
+}
+/var/log/yum.log {
+    missingok
+    notifempty
+    maxsize 30k
+    yearly
+    create 0600 root root
+}
+
+
